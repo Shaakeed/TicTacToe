@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const playerLetters = ['X','O','A','B','C','D','E','F','G','H','I','J','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z'];
-const rl = readline.createInterface(process.stdin, process.stdout);
 
 //Default settings
 var settings = {
@@ -16,6 +15,7 @@ main();
 
 //region SHAAKEED
 function StartGameQuestions(){
+    const rl = readline.createInterface(process.stdin, process.stdout);
   rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
@@ -37,6 +37,7 @@ function StartGameQuestions(){
                 if(win_sequence){
                   console.log(win_sequence);
 				  settings.winSequence = parseInt(win_sequence);
+                    rl.close();
                   beginGame(settings);
                 }
                 else{
@@ -154,20 +155,11 @@ function ShowSavedGames(dir) {
 var activeBoard = [];
 
 function beginGame(settings) {
-    
 	console.log('****Game Started****');
 	activeBoard = createMatrix(settings.boardSize);
 	board = drawBoard(settings.boardSize);
 	console.log(board);
     recursiveAsyncReadLine();
-
-    // playerMoved(3,3,'X');
-    // playerMoved(1,2,'X');
-    // playerMoved(1,7,'X');
-    // playerMoved(1,1,'O');
-    // playerMoved(2,1,'O');
-    // playerMoved(3,1,'O');
-    // playerMoved(4,1,'X');
 }
 
 var createMatrix = function(board_size){
@@ -193,30 +185,31 @@ function playerMoved(row, column, value){
     } else {
         console.log('a player exists in that space, move invalid');
     }
-    checkForWinner(activeBoard, value);
+    checkForWinner(activeBoard, value, row, column);
 }
 
 var recursiveAsyncReadLine = function () {
-    
+    const rl = readline.createInterface(process.stdin, process.stdout);
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
-    r1.question('Please enter a row,column (you may also type save to save the game): ', function (answer) {
+    rl.question('Please enter a row,column (you may also type save to save the game): ', function (answer) {
+        console.log(answer);
         if (answer == 'save') //we need some base case, for recursion
-            return r1.close(); //closing RL and returning from function.
+            return rl.close(); //closing RL and returning from function.
         console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
 
         var grid = answer.split(',');
         playerMoved((parseInt(grid[0])-1), parseInt((grid[1])-1), playerLetters[settings.currentPlayer]);
 
-        r1.close();
+        rl.close();
         settings.currentPlayer++;
         recursiveAsyncReadLine();
     });
 };
 
-function checkForWinner(board, player){
-    if (checkRows(board, player) || checkDiagonals(board, player) || checkColumns(board, player)) {
+function checkForWinner(board, player, row, column){
+    if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
     } else {
         console.log('not a winner');
@@ -250,7 +243,19 @@ function checkRows(board, player){
         return win;
 }
 
-function checkDiagonals(board, player){
+function checkDiagonals(board, player, row, column){
+    console.log('checking diagonal');
+    if(row == column){
+        for(let i = 0; i < settings.winSequence; i++){
+            //console.log('This many in a row ',i);
+            if(board[i][i] != player)
+                break;
+            if(i == settings.winSequence-1){
+                //report win
+                return true;
+            }
+        }
+    }
     return false;
 }
 
