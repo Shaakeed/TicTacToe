@@ -118,13 +118,13 @@ var LoadSavedGame= function (rl, dir, file) {
 }
 
 var MyCrumbyXmlParser = function  (xmlString) {
-    var aSave = [];
+    //var aSave = [];
     //console.log(xmlString);
-    aSave["players"] = xmlString.substring(xmlString.indexOf("<players>")+9,xmlString.indexOf("</players>"));
-    aSave["boardSize"] = xmlString.substring(xmlString.indexOf("<boardSize>")+11,xmlString.indexOf("</boardSize>"));//-xmlString.indexOf("<boardSize>")-1);
-    aSave["winSequence"] = xmlString.substring(xmlString.indexOf("<winSequence>")+13,xmlString.indexOf("</winSequence>"));//-xmlString.indexOf("<winSequence>")-1);
+    settings["players"] = xmlString.substring(xmlString.indexOf("<players>")+9,xmlString.indexOf("</players>"));
+    settings["boardSize"] = xmlString.substring(xmlString.indexOf("<boardSize>")+11,xmlString.indexOf("</boardSize>"));//-xmlString.indexOf("<boardSize>")-1);
+    settings["winSequence"] = xmlString.substring(xmlString.indexOf("<winSequence>")+13,xmlString.indexOf("</winSequence>"));//-xmlString.indexOf("<winSequence>")-1);
 
-    beginGame(aSave);
+    beginGame(settings);
 }
 
 function LoadGame(rl) {
@@ -223,15 +223,15 @@ var recursiveAsyncReadLine = function () {
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
-    r1.question('Please enter a row,column (you may also type save to save the game): ', function (answer) {
+    rl.question('Please enter a row,column (you may also type save to save the game): ', function (answer) {
         if (answer == 'save') //we need some base case, for recursion
-            return r1.close(); //closing RL and returning from function.
+            return rl.close(); //closing RL and returning from function.
         console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
 
         var grid = answer.split(',');
         playerMoved((parseInt(grid[0])-1), parseInt((grid[1])-1), playerLetters[settings.currentPlayer]);
 
-        r1.close();
+        rl.close();
         settings.currentPlayer++;
         recursiveAsyncReadLine();
     });
