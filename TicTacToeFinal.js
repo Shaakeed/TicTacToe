@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const playerLetters = ['X','O','A','B','C','D','E','F','G','H','I','J','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z'];
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 //Default settings
 var settings = {
@@ -16,12 +17,11 @@ main();
 //region SHAAKEED
 function StartGameQuestions(){
     const rl = readline.createInterface(process.stdin, process.stdout);
-  rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
+	rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
       console.log('\nYou picked saved game.\n');
 	  LoadGame(rl);
-
     }
     else if (saved_game === 'NO' || saved_game === 'N'){
       console.log('You picked a new game.');
@@ -102,12 +102,8 @@ var drawBoard = function(board_size){
 };
 //endregion
 
-<<<<<<< HEAD
-//region BRIAN
-function LoadGame() {
-=======
-/****************************BRIAN*********************************************************/
 
+//region BRIAN
 var LoadSavedGame= function (rl, dir, file) {
 
 
@@ -134,7 +130,6 @@ var MyCrumbyXmlParser = function  (xmlString) {
 
 function LoadGame(rl) {
 
->>>>>>> refs/remotes/origin/Load
     rl.question("Please enter your save file name " +
         "\nor press Return to see a list of saved games" +
         "\nor type Exit to return to the menu... \n", resp => {
@@ -172,9 +167,6 @@ var ShowSavedGames = function (dir) {
 
     return;
 }
-<<<<<<< HEAD
-//endregion
-=======
 
 function SaveTheGame(settings, activeBoard) {
 
@@ -208,9 +200,7 @@ function SaveTheGame(settings, activeBoard) {
         }
     })
 }
-
-/************************************************************************************/
->>>>>>> refs/remotes/origin/Load
+//endregion
 
 //region Kyle
 var activeBoard = [];
@@ -257,8 +247,8 @@ var recursiveAsyncReadLine = function () {
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
-<<<<<<< HEAD
-    rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
+
+    /*rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
         //console.log(answer);
         if (answer == 'save') //we need some base case, for recursion
             return rl.close(); //closing RL and returning from function.
@@ -286,7 +276,8 @@ var recursiveAsyncReadLine = function () {
 
         rl.close();
         recursiveAsyncReadLine();
-=======
+		*/
+
     rl.question('Please enter a row,column (you may also type save to save the game): ', answer => {
         if (answer == 'save') {//we need some base case, for recursion
             SaveTheGame(settings, activeBoard);
@@ -303,7 +294,6 @@ var recursiveAsyncReadLine = function () {
             settings.currentPlayer++;
             recursiveAsyncReadLine();
         }
->>>>>>> refs/remotes/origin/Load
     });
 };
 
