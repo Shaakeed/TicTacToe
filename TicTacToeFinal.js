@@ -177,15 +177,18 @@ var createMatrix = function(board_size){
 };
 
 function playerMoved(row, column, value){
-    console.log(row,column, value);
+    //console.log(row,column, value);
     if (activeBoard[row][column] === ' '){
-        console.log('player has moved');
+      //  console.log('player has moved');
         activeBoard[row][column] = value;
         console.log(activeBoard);
+        checkForWinner(activeBoard, value, row, column);
+        return true;
     } else {
         console.log('a player exists in that space, move invalid');
+        return false;
     }
-    checkForWinner(activeBoard, value, row, column);
+
 }
 
 var recursiveAsyncReadLine = function () {
@@ -193,23 +196,39 @@ var recursiveAsyncReadLine = function () {
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
-    rl.question('Please enter a row,column (you may also type save to save the game): ', function (answer) {
-        console.log(answer);
+    rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
+        //console.log(answer);
         if (answer == 'save') //we need some base case, for recursion
             return rl.close(); //closing RL and returning from function.
         console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
-
+        var canPlay = true;
         var grid = answer.split(',');
-        playerMoved((parseInt(grid[0])-1), parseInt((grid[1])-1), playerLetters[settings.currentPlayer]);
+        var row = (parseInt(grid[0])-1),
+            column = parseInt((grid[1])-1);
+
+        if (row > (settings.boardSize-1) || row < 0){
+            canPlay= false;
+            console.log('invalid row coordinate');
+        }
+
+        if (column > (settings.boardSize-1) || column < 0){
+            canPlay= false;
+            console.log('invalid column coordinate');
+        }
+
+        if (canPlay){
+            if (playerMoved(row, column, playerLetters[settings.currentPlayer])){
+                settings.currentPlayer++;
+            }
+        }
 
         rl.close();
-        settings.currentPlayer++;
         recursiveAsyncReadLine();
     });
 };
 
 function checkForWinner(board, player, row, column){
-    if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkColumns(board, player)) {
+    if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
     } else {
         console.log('not a winner');
@@ -244,18 +263,130 @@ function checkRows(board, player){
 }
 
 function checkDiagonals(board, player, row, column){
-    console.log('checking diagonal');
-    if(row == column){
-        for(let i = 0; i < settings.winSequence; i++){
-            //console.log('This many in a row ',i);
-            if(board[i][i] != player)
-                break;
-            if(i == settings.winSequence-1){
-                //report win
+   // console.log('checking diagonal');
+    // 3,4
+  //  console.log('player played ', row, column);
+    var keepChecking = true;
+    var hitCount = 1;
+    var currentRow = row;
+    var currentColumn = column;
+    while (keepChecking){
+        if(typeof board[++currentRow] === 'undefined') {
+            keepChecking = false;
+            console.log('out of the range of the matrix');
+            break;
+        }
+
+        if(typeof board[currentRow][++currentColumn] === 'undefined') {
+            keepChecking = false;
+            console.log('out of the range of the matrix');
+            break;
+        }
+
+        if (board[currentRow][currentColumn] == player) {
+            console.log('diagonal hit down right');
+            console.log('found hits:', ++hitCount);
+            if (hitCount >= settings.winSequence)
                 return true;
-            }
+        } else {
+            console.log('stop checking no more matches');
+            keepChecking = false;
         }
     }
+
+    currentRow = row;
+    currentColumn = column;
+    keepChecking = true;
+    hitCount--; //subtract one because its going to add the original location again
+    while (keepChecking){
+        if(typeof board[++currentRow] === 'undefined') {
+            keepChecking = false;
+           // console.log('out of the range of the matrix');
+            break;
+        }
+
+        if(typeof board[currentRow][++currentColumn] === 'undefined') {
+            keepChecking = false;
+        //    console.log('out of the range of the matrix');
+            break;
+        }
+
+        if (board[currentRow][currentColumn] == player) {
+        //    console.log('diagonal up left hit');
+        //    console.log('found hits:', ++hitCount);
+            if (hitCount >= settings.winSequence)
+                return true;
+        } else {
+         //   console.log('stop checking no more matches');
+            keepChecking = false;
+        }
+    }
+
+
+    return false;
+}
+
+function checkDiagonalsOpp(board, player, row, column){
+    //console.log('checking diagonal');
+    // 3,4
+    //console.log('player played ', row, column);
+    var keepChecking = true;
+    var hitCount = 1;
+    var currentRow = row;
+    var currentColumn = column;
+    while (keepChecking){
+        if(typeof board[--currentRow] === 'undefined') {
+            keepChecking = false;
+           // console.log('out of the range of the matrix');
+            break;
+        }
+
+        if(typeof board[currentRow][++currentColumn] === 'undefined') {
+            keepChecking = false;
+         //   console.log('out of the range of the matrix');
+            break;
+        }
+
+        if (board[currentRow][currentColumn] == player) {
+         //   console.log('diagonal hit down right');
+        //    console.log('found hits:', ++hitCount);
+            if (hitCount >= settings.winSequence)
+                return true;
+        } else {
+          //  console.log('stop checking no more matches');
+            keepChecking = false;
+        }
+    }
+
+    currentRow = row;
+    currentColumn = column;
+    keepChecking = true;
+    hitCount--; //subtract one because its going to add the original location again
+    while (keepChecking){
+        if(typeof board[++currentRow] === 'undefined') {
+            keepChecking = false;
+          //  console.log('out of the range of the matrix');
+            break;
+        }
+
+        if(typeof board[currentRow][--currentColumn] === 'undefined') {
+            keepChecking = false;
+            console.log('out of the range of the matrix');
+            break;
+        }
+
+        if (board[currentRow][currentColumn] == player) {
+          //  console.log('diagonal up left hit');
+         //   console.log('found hits:', ++hitCount);
+            if (hitCount >= settings.winSequence)
+                return true;
+        } else {
+          //  console.log('stop checking no more matches');
+            keepChecking = false;
+        }
+    }
+
+
     return false;
 }
 
