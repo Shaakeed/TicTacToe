@@ -65,11 +65,11 @@ function StartGameQuestions(){
   })
 }
 
-var drawBoard = function(board_size){
+var drawBoard = function(activeBoard){
 	var board = '';
 
 	//Row0 to start board numbers
-	for(var row0 = 1; row0 <= board_size; row0++){
+	for(var row0 = 1; row0 <= activeBoard.length; row0++){
 		if(row0 === 1){
 			board += '    ' + row0;
 		}
@@ -79,22 +79,24 @@ var drawBoard = function(board_size){
 	}
 
 	//Rest of the rows and columns that setup the table
-	for (var row = 1; row <= board_size; row++){
-		board += '\n' + row + '     ';
+	for (var row = 0; row < activeBoard.length; row++){
+		board += '\n' + Number(row+1) + '   ';
 
-		for(var column = 1; column < board_size; column++){
-			board += '|   ';
+		for(var column = 0; column < activeBoard.length; column++){
+			board += activeBoard[row][column];
+      if(column < activeBoard.length - 1){
+        board += ' | ';
+      }
 		}
 		board += '\n   ';
-
-		if(row < board_size){
-			for(var row_col = 0; row_col < (board_size * 2 - 1); row_col++){
-				if(row_col % 2 !== 0){
-					board += '+';
-				}
-				else{
-					board += '---';
-				}
+    for(var row_col = 1; row_col < (activeBoard.length * 2); row_col++){
+      if(row !== activeBoard.length - 1){
+        if(row_col % 2 === 0){
+          board += '+';
+        }
+        else{
+          board += '---';
+        }
 			}
 		}
 	}
@@ -104,7 +106,7 @@ var drawBoard = function(board_size){
 
 
 //region BRIAN
-var LoadSavedGame= function (rl, dir, file) {
+var LoadSavedGame = function (rl, dir, file) {
 
 
     fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
@@ -205,7 +207,7 @@ var activeBoard = [];
 function beginGame(settings) {
 	console.log('****Game Started****');
 	activeBoard = createMatrix(settings.boardSize);
-	board = drawBoard(settings.boardSize);
+	var board = drawBoard(activeBoard);
 	console.log(board);
     recursiveAsyncReadLine();
 }
@@ -220,7 +222,7 @@ var createMatrix = function(board_size){
         matrix.push(row);
     }
 
-    console.log(matrix);
+    //console.log(matrix);
     return matrix;
 };
 
@@ -229,7 +231,9 @@ function playerMoved(row, column, value){
     if (activeBoard[row][column] === ' '){
       //  console.log('player has moved');
         activeBoard[row][column] = value;
-        console.log(activeBoard);
+        //console.log(activeBoard);
+        board = drawBoard(activeBoard);
+        console.log(board);
         checkForWinner(activeBoard, value, row, column);
         return true;
     } else {
@@ -297,7 +301,11 @@ var recursiveAsyncReadLine = function () {
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
-    } else {
+    }
+    else if(checkTie(board, player)){
+        console.log('it is a tie');
+    }
+    else {
         console.log('not a winner');
     }
 }
@@ -388,8 +396,6 @@ function checkDiagonals(board, player, row, column){
             keepChecking = false;
         }
     }
-
-
     return false;
 }
 
@@ -452,8 +458,6 @@ function checkDiagonalsOpp(board, player, row, column){
             keepChecking = false;
         }
     }
-
-
     return false;
 }
 
@@ -463,17 +467,19 @@ function checkColumns(board, player){
             function (c) { return a.map(function (r) { return r[c]; }); }
         );
     }
-
     return checkRows(transpose(board), player);
 }
 
-function tieCheck(board, players){
-
+function checkTie(board, players){
+  var tie = true;
+  for(var i = 0; i < board.length; i++){
+    if(board[i].indexOf(' ') >= 0){
+      return tie = false;
+    }
+  }
+  return true;
 }
 
-function saveGame() {
-    console.log('save game has ran');
-}
 //endregion
 
 function main(){
@@ -484,6 +490,6 @@ function main(){
     '                  |   |   \n' +
     '               ---+---+--- \n' +
     '                  |   |   \n');
-	
+
 	StartGameQuestions();
 }
