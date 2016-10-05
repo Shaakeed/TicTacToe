@@ -232,7 +232,7 @@ function playerMoved(row, column, value){
       //  console.log('player has moved');
         activeBoard[row][column] = value;
         //console.log(activeBoard);
-        board = drawBoard(activeBoard);
+        var board = drawBoard(activeBoard);
         console.log(board);
         checkForWinner(activeBoard, value, row, column);
         return true;
@@ -304,12 +304,17 @@ var recursiveAsyncReadLine = function () {
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
+        StartGameQuestions();
+
     }
-    else if(checkTie(board, player)){
+    else if(checkTie(board)){
         console.log('it is a tie');
+        StartGameQuestions();
     }
     else {
         console.log('not a winner');
+        StartGameQuestions();
+
     }
 }
 
@@ -473,7 +478,7 @@ function checkColumns(board, player){
     return checkRows(transpose(board), player);
 }
 
-function checkTie(board, players){
+function checkTie(board){
   var tie = true;
   for(var i = 0; i < board.length; i++){
     if(board[i].indexOf(' ') >= 0){
@@ -488,11 +493,11 @@ function checkTie(board, players){
 function main(){
   console.log('Welcome to Advanced Customized Tic-Tac-Toe');
   console.log(
-    '                  |   |   \n' +
+    '                X | O |   \n' +
     '               ---+---+--- \n' +
-    '                  |   |   \n' +
+    '                O | X |   \n' +
     '               ---+---+--- \n' +
-    '                  |   |   \n');
+    '                O |   | X  \n');
 
 	StartGameQuestions();
 }

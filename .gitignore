@@ -1,3 +1,9 @@
 .idea
 
+<<<<<<< Updated upstream
 *.xml
+=======
+save.xml
+
+savegame.xml
+>>>>>>> Stashed changes
