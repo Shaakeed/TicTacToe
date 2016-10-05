@@ -19,7 +19,7 @@ function StartGameQuestions(){
   rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
-      console.log('You picked saved game.');
+      console.log('\nYou picked saved game.\n');
 	  LoadGame(rl);
 
     }
@@ -140,7 +140,10 @@ function LoadGame(rl) {
         //LoadGame(rl);
         return;
     }
-else if (resp.toUpperCase() == "EXIT") rl.close();
+else if (resp.toUpperCase() == "EXIT") {
+        rl.close();
+        StartGameQuestions();
+    }
     else {
         LoadSavedGame(rl, __dirname, resp);
     }

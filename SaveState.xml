@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<saveFile>
+	<players>4</players>    
+	<boardSize>55</boardSize>    
+	<winSequence>4</winSequence> 
+</saveFile>
