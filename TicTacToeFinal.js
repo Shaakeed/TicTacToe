@@ -14,7 +14,7 @@ var settings = {
 
 main();
 
-/***************************SHAAKEED********************************************************/
+//region SHAAKEED
 function StartGameQuestions(){
   rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
@@ -99,9 +99,9 @@ var drawBoard = function(board_size){
 	}
   return board;
 };
-/*********************************************************************************************/
+//endregion
 
-/****************************BRIAN*********************************************************/
+//region BRIAN
 function LoadGame() {
     rl.question("Please enter your save file name " +
         "\nor press Return to see a list of saved games" +
@@ -148,9 +148,9 @@ function ShowSavedGames(dir) {
         "\n  \t and can choose from");
     return;
 }
-/************************************************************************************/
+//endregion
 
-/****************************KEVIN*********************************************************/
+//region Kyle
 var activeBoard = [];
 
 function beginGame(settings) {
@@ -271,9 +271,7 @@ function tieCheck(board, players){
 function saveGame() {
     console.log('save game has ran');
 }
-
-
-/************************************************************************************/
+//endregion
 
 function main(){
   console.log('Welcome to Advanced Customized Tic-Tac-Toe');
