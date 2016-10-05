@@ -19,9 +19,9 @@ function StartGameQuestions(){
   rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
-      console.log('You picked saved game.');
-	  LoadGame();
-      rl.close();
+      console.log('\nYou picked saved game.\n');
+	  LoadGame(rl);
+
     }
     else if (saved_game === 'NO' || saved_game === 'N'){
       console.log('You picked a new game.');
@@ -102,54 +102,115 @@ var drawBoard = function(board_size){
 };
 //endregion
 
+<<<<<<< HEAD
 //region BRIAN
 function LoadGame() {
+=======
+/****************************BRIAN*********************************************************/
+
+var LoadSavedGame= function (rl, dir, file) {
+
+
+    fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
+        if (err) {
+            console.error("An error occured while loading your game, please choose a different save", err);
+        }
+        else {
+            MyCrumbyXmlParser(data.toString());
+        }
+    })
+    //rl.close();
+}
+
+var MyCrumbyXmlParser = function  (xmlString) {
+    //var aSave = [];
+    //console.log(xmlString);
+    settings["players"] = xmlString.substring(xmlString.indexOf("<players>")+9,xmlString.indexOf("</players>"));
+    settings["boardSize"] = xmlString.substring(xmlString.indexOf("<boardSize>")+11,xmlString.indexOf("</boardSize>"));
+    settings["winSequence"] = xmlString.substring(xmlString.indexOf("<winSequence>")+13,xmlString.indexOf("</winSequence>"));
+
+    beginGame(settings);
+}
+
+function LoadGame(rl) {
+
+>>>>>>> refs/remotes/origin/Load
     rl.question("Please enter your save file name " +
         "\nor press Return to see a list of saved games" +
         "\nor type Exit to return to the menu... \n", resp => {
-        "use strict";
+
         if (resp == "") {
             ShowSavedGames(__dirname);
-            console.log("\n");
-            rl.close();
-            LoadGame();
             return;
         }
-        else if (resp.toUpperCase() == "EXIT") rl.close();
+        else if (resp.toUpperCase() == "EXIT") {
+            rl.close();
+            StartGameQuestions();
+        }
         else {
-
-                LoadSavedGame(__dirname, resp);
-				 }
-        rl.close();
-
+            LoadSavedGame(rl, __dirname, resp);
+        }
     })
 }
 
+var ShowSavedGames = function (dir) {
+    fs.readdir(dir, function(err, files) {
+        var noFiles = "There are no save files";
 
-function LoadSavedGame(dir, file) {
-    "use strict";
+        for (var i=0; i<files.length; i++) {
 
-    console.log("\n \t This will return the data:" +
-        "\n \t - players" +
-        "\n \t - boardSize" +
-        "\n \t - heading" +
-        "\n \t - winSequence" +
-        "\n \tstored in " + dir + "\\" + file + ".xml");
-    return;
+            if(files[i].toString().substring(files[i].toString().length - 4) == ".xml")
+            {
+                console.log(files[i].substring(0,files[i].length - 4));
+                noFiles="";
+            }
 
-}
+        }
+        console.log(noFiles);
+        LoadGame(rl);
+    });
 
-function ShowSavedGames(dir) {
-    
-    console.log("\t this will be a list" +
-        "\n  \t of save games" +
-        "\n  \t that the user " +
-        "\n  \t has saved to " +
-        "\n  \t " + dir + "" +
-        "\n  \t and can choose from");
     return;
 }
+<<<<<<< HEAD
 //endregion
+=======
+
+function SaveTheGame(settings, activeBoard) {
+
+    rl.question("\nPlease type a name for the saved game\n", answer => {
+        if (answer) {
+            var saveString = '<?xml version="1.0" encoding="UTF-8"?>' +
+                '\r\n<saveFile>' +
+                '\r\n\t<players>' + settings.playerSize + '</players>' +
+                '\r\n\t<boardSize>' + settings.boardSize + '</boardSize>' +
+                '\r\n\t<winSequence>' + settings.winSequence + '</winSequence>' +
+                '\r\n\t<currentPlayer>' + settings.currentPlayer + '</currentPlayer>' +
+                    '\r\n\t<activeBoard>';
+
+            console.log(settings.boardSize);
+
+            for(var i = 0; i < settings.boardSize; i++) {
+                for(var j = 0; j < settings.boardSize; j++) {
+                    saveString = saveString +
+                        '\r\n\t\t<activeBoard' + '' + i + '' + '_' + j + '' + '>' + i + ',' + j + ',' + activeBoard[i][j] + '</activeBoard' + '' + i + '' + '_' + j + '' + '>';
+                }
+            }
+            saveString = saveString + '\r\n\t</activeBoard>\r\n</saveFile>';
+
+            fs.writeFile(path.join(__dirname, answer + ".xml"), saveString);
+            console.log("\nYour game has been saved as", answer, "\n");
+            StartGameQuestions();
+        }
+        else {
+            console.log("invalid file name");
+            SaveTheGame(settings,activeBoard);
+        }
+    })
+}
+
+/************************************************************************************/
+>>>>>>> refs/remotes/origin/Load
 
 //region Kyle
 var activeBoard = [];
@@ -196,6 +257,7 @@ var recursiveAsyncReadLine = function () {
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
+<<<<<<< HEAD
     rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
         //console.log(answer);
         if (answer == 'save') //we need some base case, for recursion
@@ -224,6 +286,24 @@ var recursiveAsyncReadLine = function () {
 
         rl.close();
         recursiveAsyncReadLine();
+=======
+    rl.question('Please enter a row,column (you may also type save to save the game): ', answer => {
+        if (answer == 'save') {//we need some base case, for recursion
+            SaveTheGame(settings, activeBoard);
+
+        }
+        else {
+            return rl.close(); //closing RL and returning from function.
+            console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
+
+            var grid = answer.split(',');
+            playerMoved((parseInt(grid[0]) - 1), parseInt((grid[1]) - 1), playerLetters[settings.currentPlayer]);
+
+            rl.close();
+            settings.currentPlayer++;
+            recursiveAsyncReadLine();
+        }
+>>>>>>> refs/remotes/origin/Load
     });
 };
 
