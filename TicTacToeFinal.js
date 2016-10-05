@@ -3,6 +3,7 @@ const path = require('path');
 const readline = require('readline');
 const playerLetters = ['X','O','A','B','C','D','E','F','G','H','I','J','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z'];
 const rl = readline.createInterface(process.stdin, process.stdout);
+var activeBoard = [];
 
 //Default settings
 var settings = {
@@ -107,8 +108,6 @@ var drawBoard = function(activeBoard){
 
 //region BRIAN
 var LoadSavedGame = function (rl, dir, file) {
-
-
     fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
         if (err) {
             console.error("\nAn error occured while loading your game\n"/*, err*/);
@@ -119,7 +118,6 @@ var LoadSavedGame = function (rl, dir, file) {
             MyCrumbyXmlParser(data.toString());
         }
     })
-    //rl.close();
 }
 
 var MyCrumbyXmlParser = function  (xmlString) {
@@ -128,8 +126,28 @@ var MyCrumbyXmlParser = function  (xmlString) {
     settings["players"] = xmlString.substring(xmlString.indexOf("<players>")+9,xmlString.indexOf("</players>"));
     settings["boardSize"] = xmlString.substring(xmlString.indexOf("<boardSize>")+11,xmlString.indexOf("</boardSize>"));
     settings["winSequence"] = xmlString.substring(xmlString.indexOf("<winSequence>")+13,xmlString.indexOf("</winSequence>"));
+    settings["currentPlayer"] = xmlString.substring(xmlString.indexOf("<currentPlayer>")+15,xmlString.indexOf("</currentPlayer>"));
 
-    beginGame(settings);
+    activeBoard = createMatrix(settings.boardSize);
+    for(var i = 0; i < settings.boardSize; i++) {
+        for(var j = 0; j < settings.boardSize; j++) {
+
+            var element = "<activeBoard" + i + '_' + j + '>';
+            var elementEnd = "</activeBoard" + i + '_' + j + '>';
+
+            var value = xmlString.substring(xmlString.indexOf(element)+ element.length, xmlString.indexOf(elementEnd));
+            activeBoard[i][j] = value;
+        }
+    }
+    resumeGame(activeBoard);
+
+}
+
+function resumeGame(activeBoard) {
+    console.log("\n****Game Started*****")
+    var board = drawBoard(activeBoard);
+    console.log(board);
+    recursiveAsyncReadLine();
 }
 
 function LoadGame(rl) {
@@ -181,10 +199,11 @@ function SaveTheGame(rll, settings, activeBoard) {
                 '\r\n\t<currentPlayer>' + settings.currentPlayer + '</currentPlayer>' +
                 '\r\n\t<activeBoard>';
 
+
             for(var i = 0; i < settings.boardSize; i++) {
                 for(var j = 0; j < settings.boardSize; j++) {
                     saveString = saveString +
-                        '\r\n\t\t<activeBoard' + '' + i + '' + '_' + j + '' + '>' + i + ',' + j + ',' + activeBoard[i][j] + '</activeBoard' + '' + i + '' + '_' + j + '' + '>';
+                        '\r\n\t\t<activeBoard' + '' + i + '' + '_' + j + '' + '>' /*+ i + ',' + j + ',' */+ activeBoard[i][j] + '</activeBoard' + '' + i + '' + '_' + j + '' + '>';
                 }
             }
             saveString = saveString + '\r\n\t</activeBoard>\r\n</saveFile>';
@@ -202,7 +221,7 @@ function SaveTheGame(rll, settings, activeBoard) {
 //endregion
 
 //region Kyle
-var activeBoard = [];
+
 
 function beginGame(settings) {
 	console.log('****Game Started****');
@@ -283,7 +302,7 @@ var recursiveAsyncReadLine = function () {
         else if(answer == 'q'){
             rl.close();
         }
-		else if(answer == 'q'){
+		else if(answer == 'Q'){
 			rl.close();
 		}
         else {
