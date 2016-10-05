@@ -284,6 +284,9 @@ var recursiveAsyncReadLine = function () {
             SaveTheGame(settings, activeBoard);
 
         }
+		else if(answer == 'q'){
+			rl.close();
+		}
         else {
             return rl.close(); //closing RL and returning from function.
             console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
