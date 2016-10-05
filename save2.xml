@@ -1,5 +1,18 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <saveFile>
 	<players>undefined</players>
 	<boardSize>3</boardSize>
 	<winSequence>3</winSequence>
+	<currentPlayer>0</currentPlayer>
+	<activeBoard>
+		<activeBoard0,0>0,0, </activeBoard[0][0]>
+		<activeBoard0,1>0,1, </activeBoard[0][1]>
+		<activeBoard0,2>0,2, </activeBoard[0][2]>
+		<activeBoard1,0>1,0, </activeBoard[1][0]>
+		<activeBoard1,1>1,1, </activeBoard[1][1]>
+		<activeBoard1,2>1,2, </activeBoard[1][2]>
+		<activeBoard2,0>2,0, </activeBoard[2][0]>
+		<activeBoard2,1>2,1, </activeBoard[2][1]>
+		<activeBoard2,2>2,2, </activeBoard[2][2]>
+	</activeBoard>
+</saveFile>

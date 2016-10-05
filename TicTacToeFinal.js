@@ -172,24 +172,24 @@ function SaveTheGame(settings, activeBoard) {
     rl.question("\nPlease type a name for the saved game\n", answer => {
         if (answer) {
             var saveString = '<?xml version="1.0" encoding="UTF-8"?>' +
-                '\n<saveFile>' +
-                '\n\t<players>' + settings.players + '</players>' +
-                '\n\t<boardSize>' + settings.boardSize + '</boardSize>' +
-                '\n\t<winSequence>' + settings.winSequence + '</winSequence>';
-                '\n\t<currentPlayer>' + settings.currentPlayer + '</currentPlayer>';
+                '\r\n<saveFile>' +
+                '\r\n\t<players>' + settings.playerSize + '</players>' +
+                '\r\n\t<boardSize>' + settings.boardSize + '</boardSize>' +
+                '\r\n\t<winSequence>' + settings.winSequence + '</winSequence>' +
+                '\r\n\t<currentPlayer>' + settings.currentPlayer + '</currentPlayer>' +
+                    '\r\n\t<activeBoard>';
 
-/*
+            console.log(settings.boardSize);
 
-            for(var i; settings.boardSize.length > i; i++) {
-
-                for(var j; settings.boardSize.length > j; j++) {
+            for(var i = 0; i < settings.boardSize; i++) {
+                for(var j = 0; j < settings.boardSize; j++) {
                     saveString = saveString +
-                        '\n\t<activeBoard' + '[' + i + ']' + '[' + j + ']' + '>' + i + ',' + j + ',' + activeBoard[i][j] + '</activeBoard' + '[' + i + ']' + '[' + j + ']' + '>';
+                        '\r\n\t\t<activeBoard' + '' + i + '' + '_' + j + '' + '>' + i + ',' + j + ',' + activeBoard[i][j] + '</activeBoard' + '' + i + '' + '_' + j + '' + '>';
                 }
             }
-            saveString = saveString + '\n</saveFile>';
-    */
-            fs.writeFileSync(path.join(__dirname, answer + ".xml"), saveString);
+            saveString = saveString + '\r\n\t</activeBoard>\r\n</saveFile>';
+
+            fs.writeFile(path.join(__dirname, answer + ".xml"), saveString);
             console.log("\nYour game has been saved as", answer, "\n");
             StartGameQuestions();
         }
