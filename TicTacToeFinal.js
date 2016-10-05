@@ -20,8 +20,8 @@ function StartGameQuestions(){
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
       console.log('You picked saved game.');
-	  LoadGame();
-      rl.close();
+	  LoadGame(rl);
+
     }
     else if (saved_game === 'NO' || saved_game === 'N'){
       console.log('You picked a new game.');
@@ -102,52 +102,71 @@ var drawBoard = function(board_size){
 /*********************************************************************************************/
 
 /****************************BRIAN*********************************************************/
-function LoadGame() {
+
+var LoadSavedGame= function (rl, dir, file) {
+
+
+    fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
+        if (err) {
+            console.error("An error occured while loading your game, please choose a different save", err);
+        }
+        else {
+            MyCrumbyXmlParser(data.toString());
+        }
+    })
+    //rl.close();
+}
+
+var MyCrumbyXmlParser = function  (xmlString) {
+    var aSave = [];
+    //console.log(xmlString);
+    aSave["players"] = xmlString.substring(xmlString.indexOf("<players>")+9,xmlString.indexOf("</players>"));
+    aSave["boardSize"] = xmlString.substring(xmlString.indexOf("<boardSize>")+11,xmlString.indexOf("</boardSize>"));//-xmlString.indexOf("<boardSize>")-1);
+    aSave["winSequence"] = xmlString.substring(xmlString.indexOf("<winSequence>")+13,xmlString.indexOf("</winSequence>"));//-xmlString.indexOf("<winSequence>")-1);
+
+    beginGame(aSave);
+}
+
+function LoadGame(rl) {
+
     rl.question("Please enter your save file name " +
         "\nor press Return to see a list of saved games" +
         "\nor type Exit to return to the menu... \n", resp => {
-        "use strict";
+
         if (resp == "") {
-            ShowSavedGames(__dirname);
-            console.log("\n");
-            rl.close();
-            LoadGame();
-            return;
+        ShowSavedGames(__dirname);
+        //console.log("\n");
+        //rl.close();
+        //LoadGame(rl);
+        return;
+    }
+else if (resp.toUpperCase() == "EXIT") rl.close();
+    else {
+        LoadSavedGame(rl, __dirname, resp);
+    }
+})
+}
+
+var ShowSavedGames = function (dir) {
+    fs.readdir(dir, function(err, files) {
+        var noFiles = "There are no save files";
+
+        for (var i=0; i<files.length; i++) {
+
+            if(files[i].toString().substring(files[i].toString().length - 4) == ".xml")
+            {
+                console.log(files[i].substring(0,files[i].length - 4));
+                noFiles="";
+            }
+
         }
-        else if (resp.toUpperCase() == "EXIT") rl.close();
-        else {
+        console.log(noFiles);
+        LoadGame(rl);
+    });
 
-                LoadSavedGame(__dirname, resp);
-				 }
-        rl.close();
-
-    })
-}
-
-
-function LoadSavedGame(dir, file) {
-    "use strict";
-
-    console.log("\n \t This will return the data:" +
-        "\n \t - players" +
-        "\n \t - boardSize" +
-        "\n \t - heading" +
-        "\n \t - winSequence" +
-        "\n \tstored in " + dir + "\\" + file + ".xml");
-    return;
-
-}
-
-function ShowSavedGames(dir) {
-    
-    console.log("\t this will be a list" +
-        "\n  \t of save games" +
-        "\n  \t that the user " +
-        "\n  \t has saved to " +
-        "\n  \t " + dir + "" +
-        "\n  \t and can choose from");
     return;
 }
+
 /************************************************************************************/
 
 /****************************KEVIN*********************************************************/
