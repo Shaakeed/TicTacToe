@@ -247,6 +247,7 @@ var recursiveAsyncReadLine = function () {
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
+ 
 
     /*rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
         //console.log(answer);
