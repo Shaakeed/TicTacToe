@@ -16,7 +16,7 @@ main();
 
 //region SHAAKEED
 function StartGameQuestions(){
-    const rl = readline.createInterface(process.stdin, process.stdout);
+    //const rl = readline.createInterface(process.stdin, process.stdout);
 	rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
@@ -37,7 +37,7 @@ function StartGameQuestions(){
                 if(win_sequence){
                   console.log(win_sequence);
 				  settings.winSequence = parseInt(win_sequence);
-                    rl.close();
+                    //rl.close();
                   beginGame(settings);
                 }
                 else{
@@ -65,11 +65,11 @@ function StartGameQuestions(){
   })
 }
 
-var drawBoard = function(board_size){
+var drawBoard = function(activeBoard){
 	var board = '';
 
 	//Row0 to start board numbers
-	for(var row0 = 1; row0 <= board_size; row0++){
+	for(var row0 = 1; row0 <= activeBoard.length; row0++){
 		if(row0 === 1){
 			board += '    ' + row0;
 		}
@@ -79,22 +79,24 @@ var drawBoard = function(board_size){
 	}
 
 	//Rest of the rows and columns that setup the table
-	for (var row = 1; row <= board_size; row++){
-		board += '\n' + row + '     ';
+	for (var row = 0; row < activeBoard.length; row++){
+		board += '\n' + Number(row+1) + '   ';
 
-		for(var column = 1; column < board_size; column++){
-			board += '|   ';
+		for(var column = 0; column < activeBoard.length; column++){
+			board += activeBoard[row][column];
+      if(column < activeBoard.length - 1){
+        board += ' | ';
+      }
 		}
 		board += '\n   ';
-
-		if(row < board_size){
-			for(var row_col = 0; row_col < (board_size * 2 - 1); row_col++){
-				if(row_col % 2 !== 0){
-					board += '+';
-				}
-				else{
-					board += '---';
-				}
+    for(var row_col = 1; row_col < (activeBoard.length * 2); row_col++){
+      if(row !== activeBoard.length - 1){
+        if(row_col % 2 === 0){
+          board += '+';
+        }
+        else{
+          board += '---';
+        }
 			}
 		}
 	}
@@ -104,12 +106,14 @@ var drawBoard = function(board_size){
 
 
 //region BRIAN
-var LoadSavedGame= function (rl, dir, file) {
+var LoadSavedGame = function (rl, dir, file) {
 
 
     fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
         if (err) {
-            console.error("An error occured while loading your game, please choose a different save", err);
+            console.error("\nAn error occured while loading your game\n"/*, err*/);
+            //StartGameQuestions();
+            LoadGame(rl);
         }
         else {
             MyCrumbyXmlParser(data.toString());
@@ -139,7 +143,6 @@ function LoadGame(rl) {
             return;
         }
         else if (resp.toUpperCase() == "EXIT") {
-            rl.close();
             StartGameQuestions();
         }
         else {
@@ -167,10 +170,8 @@ var ShowSavedGames = function (dir) {
 
     return;
 }
-
-function SaveTheGame(settings, activeBoard) {
-
-    rl.question("\nPlease type a name for the saved game\n", answer => {
+function SaveTheGame(rll, settings, activeBoard) {
+    rll.question("\nPlease type a name for the saved game\n", answer => {
         if (answer) {
             var saveString = '<?xml version="1.0" encoding="UTF-8"?>' +
                 '\r\n<saveFile>' +
@@ -178,9 +179,7 @@ function SaveTheGame(settings, activeBoard) {
                 '\r\n\t<boardSize>' + settings.boardSize + '</boardSize>' +
                 '\r\n\t<winSequence>' + settings.winSequence + '</winSequence>' +
                 '\r\n\t<currentPlayer>' + settings.currentPlayer + '</currentPlayer>' +
-                    '\r\n\t<activeBoard>';
-
-            console.log(settings.boardSize);
+                '\r\n\t<activeBoard>';
 
             for(var i = 0; i < settings.boardSize; i++) {
                 for(var j = 0; j < settings.boardSize; j++) {
@@ -208,7 +207,7 @@ var activeBoard = [];
 function beginGame(settings) {
 	console.log('****Game Started****');
 	activeBoard = createMatrix(settings.boardSize);
-	board = drawBoard(settings.boardSize);
+	var board = drawBoard(activeBoard);
 	console.log(board);
     recursiveAsyncReadLine();
 }
@@ -223,7 +222,7 @@ var createMatrix = function(board_size){
         matrix.push(row);
     }
 
-    console.log(matrix);
+    //console.log(matrix);
     return matrix;
 };
 
@@ -232,7 +231,9 @@ function playerMoved(row, column, value){
     if (activeBoard[row][column] === ' '){
       //  console.log('player has moved');
         activeBoard[row][column] = value;
-        console.log(activeBoard);
+        //console.log(activeBoard);
+        board = drawBoard(activeBoard);
+        console.log(board);
         checkForWinner(activeBoard, value, row, column);
         return true;
     } else {
@@ -241,70 +242,73 @@ function playerMoved(row, column, value){
     }
 
 }
-
 var recursiveAsyncReadLine = function () {
-    const rl = readline.createInterface(process.stdin, process.stdout);
+    //const rl = readline.createInterface(process.stdin, process.stdout);
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
- 
+
 
     /*rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
-        //console.log(answer);
-        if (answer == 'save') //we need some base case, for recursion
-            return rl.close(); //closing RL and returning from function.
-        console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
-        var canPlay = true;
-        var grid = answer.split(',');
-        var row = (parseInt(grid[0])-1),
-            column = parseInt((grid[1])-1);
-
-        if (row > (settings.boardSize-1) || row < 0){
-            canPlay= false;
-            console.log('invalid row coordinate');
-        }
-
-        if (column > (settings.boardSize-1) || column < 0){
-            canPlay= false;
-            console.log('invalid column coordinate');
-        }
-
-        if (canPlay){
-            if (playerMoved(row, column, playerLetters[settings.currentPlayer])){
-                settings.currentPlayer++;
-            }
-        }
-
-        rl.close();
-        recursiveAsyncReadLine();
-		*/
+     //console.log(answer);
+     if (answer == 'save') //we need some base case, for recursion
+     return rl.close(); //closing RL and returning from function.
+     console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
+     var canPlay = true;
+     var grid = answer.split(',');
+     var row = (parseInt(grid[0])-1),
+     column = parseInt((grid[1])-1);
+     if (row > (settings.boardSize-1) || row < 0){
+     canPlay= false;
+     console.log('invalid row coordinate');
+     }
+     if (column > (settings.boardSize-1) || column < 0){
+     canPlay= false;
+     console.log('invalid column coordinate');
+     }
+     if (canPlay){
+     if (playerMoved(row, column, playerLetters[settings.currentPlayer])){
+     settings.currentPlayer++;
+     }
+     }
+     rl.close();
+     recursiveAsyncReadLine();
+     */
 
     rl.question('Please enter a row,column (you may also type save to save the game): ', answer => {
         if (answer == 'save') {//we need some base case, for recursion
-            SaveTheGame(settings, activeBoard);
-
+            SaveTheGame(rl, settings, activeBoard);
+            return;
+        }
+        else if(answer == 'q'){
+            rl.close();
         }
 		else if(answer == 'q'){
 			rl.close();
 		}
         else {
-            return rl.close(); //closing RL and returning from function.
+            //return rl.close(); //closing RL and returning from function.
             console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
 
             var grid = answer.split(',');
             playerMoved((parseInt(grid[0]) - 1), parseInt((grid[1]) - 1), playerLetters[settings.currentPlayer]);
 
-            rl.close();
+            //rl.close();
             settings.currentPlayer++;
             recursiveAsyncReadLine();
         }
     });
 };
 
+
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
-    } else {
+    }
+    else if(checkTie(board, player)){
+        console.log('it is a tie');
+    }
+    else {
         console.log('not a winner');
     }
 }
@@ -395,8 +399,6 @@ function checkDiagonals(board, player, row, column){
             keepChecking = false;
         }
     }
-
-
     return false;
 }
 
@@ -459,8 +461,6 @@ function checkDiagonalsOpp(board, player, row, column){
             keepChecking = false;
         }
     }
-
-
     return false;
 }
 
@@ -470,17 +470,19 @@ function checkColumns(board, player){
             function (c) { return a.map(function (r) { return r[c]; }); }
         );
     }
-
     return checkRows(transpose(board), player);
 }
 
-function tieCheck(board, players){
-
+function checkTie(board, players){
+  var tie = true;
+  for(var i = 0; i < board.length; i++){
+    if(board[i].indexOf(' ') >= 0){
+      return tie = false;
+    }
+  }
+  return true;
 }
 
-function saveGame() {
-    console.log('save game has ran');
-}
 //endregion
 
 function main(){
@@ -491,6 +493,6 @@ function main(){
     '                  |   |   \n' +
     '               ---+---+--- \n' +
     '                  |   |   \n');
-	
+
 	StartGameQuestions();
 }
