@@ -301,7 +301,7 @@ var recursiveAsyncReadLine = function () {
 
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
-        console.log('user has won');
+        console.log('Player ' , player, ' has won');
         process.exit();
     }
     else if(checkTie(board)){
