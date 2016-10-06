@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const playerLetters = ['X','O','A','B','C','D','E','F','G','H','I','J','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z'];
-const rl = readline.createInterface(process.stdin, process.stdout);
+
 var activeBoard = [];
 
 //Default settings
@@ -17,11 +17,12 @@ main();
 
 //region SHAAKEED
 function StartGameQuestions(){
-    //const rl = readline.createInterface(process.stdin, process.stdout);
+    const rl = readline.createInterface(process.stdin, process.stdout);
 	rl.question('Would you like to resume a saved game? (Y/N)\n', saved_game => {
     saved_game = saved_game.toUpperCase();
     if(saved_game === 'YES' || saved_game === 'Y'){
       console.log('\nYou picked saved game.\n');
+        rl.close();
 	  LoadGame(rl);
     }
     else if (saved_game === 'NO' || saved_game === 'N'){
@@ -38,7 +39,7 @@ function StartGameQuestions(){
                 if(win_sequence){
                   console.log(win_sequence);
 				  settings.winSequence = parseInt(win_sequence);
-                    //rl.close();
+                  rl.close();
                   beginGame(settings);
                 }
                 else{
@@ -107,14 +108,18 @@ var drawBoard = function(activeBoard){
 
 
 //region BRIAN
-var LoadSavedGame = function (rl, dir, file) {
+var LoadSavedGame = function (dir, file) {
+
     fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
+        const rl = readline.createInterface(process.stdin, process.stdout);
         if (err) {
             console.error("\nAn error occured while loading your game\n"/*, err*/);
             //StartGameQuestions();
+            r1.close();
             LoadGame(rl);
         }
         else {
+            r1.close();
             MyCrumbyXmlParser(data.toString());
         }
     })
@@ -150,20 +155,23 @@ function resumeGame(activeBoard) {
     recursiveAsyncReadLine();
 }
 
-function LoadGame(rl) {
-
+function LoadGame() {
+    const rl = readline.createInterface(process.stdin, process.stdout);
     rl.question("Please enter your save file name " +
         "\nor press Return to see a list of saved games" +
         "\nor type Exit to return to the menu... \n", resp => {
 
         if (resp == "") {
+            rl.close();
             ShowSavedGames(__dirname);
         }
         else if (resp.toUpperCase() == "EXIT") {
+            rl.close();
             StartGameQuestions();
         }
         else {
-            LoadSavedGame(rl, __dirname, resp);
+            rl.close();
+            LoadSavedGame(__dirname, resp);
         }
     })
 }
@@ -218,8 +226,6 @@ function SaveTheGame(rll, settings, activeBoard) {
 //endregion
 
 //region Kyle
-
-
 function beginGame(settings) {
 	console.log('****Game Started****');
 	activeBoard = createMatrix(settings.boardSize);
@@ -237,17 +243,12 @@ var createMatrix = function(board_size){
         }
         matrix.push(row);
     }
-
-    //console.log(matrix);
     return matrix;
 };
 
-function playerMoved(row, column, value){
-    //console.log(row,column, value);
+function playerMoved(row, column, value) {
     if (activeBoard[row][column] === ' '){
-      //  console.log('player has moved');
         activeBoard[row][column] = value;
-        //console.log(activeBoard);
         var board = drawBoard(activeBoard);
         console.log(board);
         checkForWinner(activeBoard, value, row, column);
@@ -259,57 +260,40 @@ function playerMoved(row, column, value){
 
 }
 var recursiveAsyncReadLine = function () {
-    //const rl = readline.createInterface(process.stdin, process.stdout);
+    const rl = readline.createInterface(process.stdin, process.stdout);
     if (settings.currentPlayer >= settings.playerSize){
         settings.currentPlayer = 0; // first player's turn again
     }
 
-
-    /*rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', function (answer) {
-     //console.log(answer);
-     if (answer == 'save') //we need some base case, for recursion
-     return rl.close(); //closing RL and returning from function.
-     console.log('Got it! Your answer was:  ' + answer +  '  "', playerLetters[settings.currentPlayer], '"');
-     var canPlay = true;
-     var grid = answer.split(',');
-     var row = (parseInt(grid[0])-1),
-     column = parseInt((grid[1])-1);
-     if (row > (settings.boardSize-1) || row < 0){
-     canPlay= false;
-     console.log('invalid row coordinate');
-     }
-     if (column > (settings.boardSize-1) || column < 0){
-     canPlay= false;
-     console.log('invalid column coordinate');
-     }
-     if (canPlay){
-     if (playerMoved(row, column, playerLetters[settings.currentPlayer])){
-     settings.currentPlayer++;
-     }
-     }
-     rl.close();
-     recursiveAsyncReadLine();
-     */
-
-    rl.question('Please enter a row,column (you may also type save to save the game): ', answer => {
+    rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', (answer)  => {
         if (answer == 'save') {//we need some base case, for recursion
             SaveTheGame(rl, settings, activeBoard);
+            return;
         }
-        else if(answer == 'q'){
-            rl.close();
+        else if(answer.toUpperCase() == 'Q'){
+            return rl.close();
         }
-		else if(answer == 'Q'){
-			rl.close();
-		}
         else {
-            //return rl.close(); //closing RL and returning from function.
             console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
 
+            var canPlay = true;
             var grid = answer.split(',');
-            playerMoved((parseInt(grid[0]) - 1), parseInt((grid[1]) - 1), playerLetters[settings.currentPlayer]);
-
-            //rl.close();
-            settings.currentPlayer++;
+            var row = (parseInt(grid[0])-1),
+                column = parseInt((grid[1])-1);
+            if (row > (settings.boardSize-1) || row < 0){
+                canPlay= false;
+                console.log('invalid row coordinate');
+            }
+            if (column > (settings.boardSize-1) || column < 0){
+                canPlay= false;
+                console.log('invalid column coordinate');
+            }
+            if (canPlay){
+                if (playerMoved(row, column, playerLetters[settings.currentPlayer])){
+                    settings.currentPlayer++;
+                }
+            }
+            rl.close();
             recursiveAsyncReadLine();
         }
     });
@@ -319,15 +303,14 @@ var recursiveAsyncReadLine = function () {
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
-        StartGameQuestions();
-
+        process.exit();
     }
     else if(checkTie(board)){
         console.log('it is a tie');
-        StartGameQuestions();
+        process.exit();
     }
     else {
-        console.log('not a winner');
+        console.log('not a winning move');
     }
 }
 
@@ -359,33 +342,28 @@ function checkRows(board, player){
 }
 
 function checkDiagonals(board, player, row, column){
-   // console.log('checking diagonal');
-    // 3,4
-  //  console.log('player played ', row, column);
     var keepChecking = true;
     var hitCount = 1;
     var currentRow = row;
     var currentColumn = column;
+
     while (keepChecking){
         if(typeof board[++currentRow] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
 
         if(typeof board[currentRow][++currentColumn] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
 
         if (board[currentRow][currentColumn] == player) {
-            console.log('diagonal hit down right');
-            console.log('found hits:', ++hitCount);
+
+            ++hitCount;
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-            console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
@@ -393,27 +371,26 @@ function checkDiagonals(board, player, row, column){
     currentRow = row;
     currentColumn = column;
     keepChecking = true;
-    hitCount--; //subtract one because its going to add the original location again
+
     while (keepChecking){
-        if(typeof board[++currentRow] === 'undefined') {
+
+        if(typeof board[--currentRow] === 'undefined') {
             keepChecking = false;
-           // console.log('out of the range of the matrix');
             break;
         }
 
-        if(typeof board[currentRow][++currentColumn] === 'undefined') {
+        if(typeof board[currentRow][--currentColumn] === 'undefined') {
             keepChecking = false;
-        //    console.log('out of the range of the matrix');
             break;
         }
 
         if (board[currentRow][currentColumn] == player) {
-        //    console.log('diagonal up left hit');
-        //    console.log('found hits:', ++hitCount);
+            ++hitCount;
+
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-         //   console.log('stop checking no more matches');
+
             keepChecking = false;
         }
     }
@@ -421,9 +398,6 @@ function checkDiagonals(board, player, row, column){
 }
 
 function checkDiagonalsOpp(board, player, row, column){
-    //console.log('checking diagonal');
-    // 3,4
-    //console.log('player played ', row, column);
     var keepChecking = true;
     var hitCount = 1;
     var currentRow = row;
@@ -431,23 +405,20 @@ function checkDiagonalsOpp(board, player, row, column){
     while (keepChecking){
         if(typeof board[--currentRow] === 'undefined') {
             keepChecking = false;
-           // console.log('out of the range of the matrix');
             break;
         }
 
         if(typeof board[currentRow][++currentColumn] === 'undefined') {
             keepChecking = false;
-         //   console.log('out of the range of the matrix');
             break;
         }
 
         if (board[currentRow][currentColumn] == player) {
-         //   console.log('diagonal hit down right');
-        //    console.log('found hits:', ++hitCount);
+            ++hitCount;
+
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-          //  console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
@@ -455,27 +426,23 @@ function checkDiagonalsOpp(board, player, row, column){
     currentRow = row;
     currentColumn = column;
     keepChecking = true;
-    hitCount--; //subtract one because its going to add the original location again
     while (keepChecking){
         if(typeof board[++currentRow] === 'undefined') {
             keepChecking = false;
-          //  console.log('out of the range of the matrix');
             break;
         }
 
         if(typeof board[currentRow][--currentColumn] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
 
+
         if (board[currentRow][currentColumn] == player) {
-          //  console.log('diagonal up left hit');
-         //   console.log('found hits:', ++hitCount);
+            ++hitCount;
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-          //  console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
