@@ -273,7 +273,7 @@ var recursiveAsyncReadLine = function () {
             return rl.close();
         }
         else {
-            console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
+            //console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
 
             var canPlay = true;
             var grid = answer.split(',');
