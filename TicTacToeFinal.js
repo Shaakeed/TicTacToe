@@ -309,7 +309,7 @@ function checkForWinner(board, player, row, column){
         process.exit();
     }
     else {
-        console.log('not a winning move');
+       // console.log('not a winning move');
     }
 }
 
