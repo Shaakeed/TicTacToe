@@ -40,6 +40,7 @@ function StartGameQuestions(){
                   console.log(win_sequence);
 				  settings.winSequence = parseInt(win_sequence);
                   rl.close();
+                    winningPossibleCheck();
                   beginGame(settings);
                 }
                 else{
@@ -65,6 +66,7 @@ function StartGameQuestions(){
       StartGameQuestions();
     }
   })
+
 }
 
 var drawBoard = function(activeBoard){
@@ -258,6 +260,7 @@ function playerMoved(row, column, value) {
     }
 
 }
+
 var recursiveAsyncReadLine = function () {
     const rl = readline.createInterface(process.stdin, process.stdout);
     if (settings.currentPlayer >= settings.playerSize){
@@ -479,4 +482,15 @@ function main(){
     '                O |   | X  \n');
 
 	StartGameQuestions();
+}
+
+function winningPossibleCheck(){
+    var maxPlayers = (settings.boardSize*settings.boardSize)/settings.winSequence;
+    if (settings.playerSize > maxPlayers){
+        console.log('This combination does not allow all players to play an equal amount of turns');
+        process.exit();
+    } else if (settings.winSequence > settings.boardSize) {
+        console.log('Winning is not possible with this combination');
+        process.exit();
+    }
 }
