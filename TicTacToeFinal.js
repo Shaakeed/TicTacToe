@@ -264,7 +264,7 @@ var recursiveAsyncReadLine = function () {
         settings.currentPlayer = 0; // first player's turn again
     }
 
-    rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', (answer)  => {
+    rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game or q to quit): ', (answer)  => {
         if (answer == 'save') {//we need some base case, for recursion
             rl.close();
             SaveTheGame(settings, activeBoard);
