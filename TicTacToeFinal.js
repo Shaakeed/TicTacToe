@@ -23,7 +23,7 @@ function StartGameQuestions(){
     if(saved_game === 'YES' || saved_game === 'Y'){
       console.log('\nYou picked saved game.\n');
         rl.close();
-	  LoadGame(rl);
+	  LoadGame();
     }
     else if (saved_game === 'NO' || saved_game === 'N'){
       console.log('You picked a new game.');
@@ -190,8 +190,9 @@ var ShowSavedGames = function (dir) {
         LoadGame();
     });
 };
-function SaveTheGame(rll, settings, activeBoard) {
-    rll.question("\nPlease type a name for the saved game\n", answer => {
+function SaveTheGame(settings, activeBoard) {
+    const rl = readline.createInterface(process.stdin, process.stdout);
+    rl.question("\nPlease type a name for the saved game\n", answer => {
         if (answer) {
             var saveString = '<?xml version="1.0" encoding="UTF-8"?>' +
                 '\r\n<saveFile>' +
@@ -210,12 +211,13 @@ function SaveTheGame(rll, settings, activeBoard) {
             }
             saveString = saveString + '\r\n\t</activeBoard>\r\n</saveFile>';
 
-            fs.writeFile(path.join(__dirname, answer + ".xml"), saveString);
+            fs.writeFileSync(path.join(__dirname, answer + ".xml"), saveString);
             console.log("\nYour game has been saved as", answer, "\n");
-            StartGameQuestions();
+            rl.close();
         }
         else {
             console.log("invalid file name");
+            rl.close();
             SaveTheGame(settings,activeBoard);
         }
     })
@@ -264,8 +266,8 @@ var recursiveAsyncReadLine = function () {
 
     rl.question('Player '+  playerLetters[settings.currentPlayer] +', Please enter a row,column (you may also type save to save the game): ', (answer)  => {
         if (answer == 'save') {//we need some base case, for recursion
-            SaveTheGame(rl, settings, activeBoard);
-            return;
+            rl.close();
+            SaveTheGame(settings, activeBoard);
         }
         else if(answer.toUpperCase() == 'Q'){
             return rl.close();
