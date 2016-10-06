@@ -111,15 +111,12 @@ var drawBoard = function(activeBoard){
 var LoadSavedGame = function (dir, file) {
 
     fs.readFile(path.join(dir, file + ".xml"), (err,data) => {
-        const rl = readline.createInterface(process.stdin, process.stdout);
         if (err) {
             console.error("\nAn error occured while loading your game\n"/*, err*/);
             //StartGameQuestions();
-            r1.close();
-            LoadGame(rl);
+            LoadGame();
         }
         else {
-            r1.close();
             MyCrumbyXmlParser(data.toString());
         }
     })
@@ -190,7 +187,7 @@ var ShowSavedGames = function (dir) {
 
         }
         console.log(noFiles);
-        LoadGame(rl);
+        LoadGame();
     });
 };
 function SaveTheGame(rll, settings, activeBoard) {
