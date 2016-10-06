@@ -118,7 +118,7 @@ var LoadSavedGame = function (rl, dir, file) {
             MyCrumbyXmlParser(data.toString());
         }
     })
-}
+};
 
 var MyCrumbyXmlParser = function  (xmlString) {
     //var aSave = [];
@@ -141,10 +141,10 @@ var MyCrumbyXmlParser = function  (xmlString) {
     }
     resumeGame(activeBoard);
 
-}
+};
 
 function resumeGame(activeBoard) {
-    console.log("\n****Game Started*****")
+    console.log("\n****Game Started*****");
     var board = drawBoard(activeBoard);
     console.log(board);
     recursiveAsyncReadLine();
@@ -158,7 +158,6 @@ function LoadGame(rl) {
 
         if (resp == "") {
             ShowSavedGames(__dirname);
-            return;
         }
         else if (resp.toUpperCase() == "EXIT") {
             StartGameQuestions();
@@ -185,9 +184,7 @@ var ShowSavedGames = function (dir) {
         console.log(noFiles);
         LoadGame(rl);
     });
-
-    return;
-}
+};
 function SaveTheGame(rll, settings, activeBoard) {
     rll.question("\nPlease type a name for the saved game\n", answer => {
         if (answer) {
@@ -297,7 +294,6 @@ var recursiveAsyncReadLine = function () {
     rl.question('Please enter a row,column (you may also type save to save the game): ', answer => {
         if (answer == 'save') {//we need some base case, for recursion
             SaveTheGame(rl, settings, activeBoard);
-            return;
         }
         else if(answer == 'q'){
             rl.close();
@@ -332,8 +328,6 @@ function checkForWinner(board, player, row, column){
     }
     else {
         console.log('not a winner');
-        StartGameQuestions();
-
     }
 }
 
