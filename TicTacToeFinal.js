@@ -257,6 +257,7 @@ function playerMoved(row, column, value){
         return true;
     } else {
         console.log('a player exists in that space, move invalid');
+        settings.currentPlayer--;
         return false;
     }
 
@@ -307,13 +308,14 @@ var recursiveAsyncReadLine = function () {
 		}
         else {
             //return rl.close(); //closing RL and returning from function.
-            console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer], '"');
+            console.log('Got it! Your answer was:  ' + answer + '  "', playerLetters[settings.currentPlayer-1], '"');
 
             var grid = answer.split(',');
-            playerMoved((parseInt(grid[0]) - 1), parseInt((grid[1]) - 1), playerLetters[settings.currentPlayer]);
+            settings.currentPlayer++;
+            playerMoved((parseInt(grid[0]) - 1), parseInt((grid[1]) - 1), playerLetters[settings.currentPlayer-1]);
 
             //rl.close();
-            settings.currentPlayer++;
+
             recursiveAsyncReadLine();
         }
     });
@@ -323,16 +325,16 @@ var recursiveAsyncReadLine = function () {
 function checkForWinner(board, player, row, column){
     if (checkRows(board, player) || checkDiagonals(board, player, row, column) || checkDiagonalsOpp(board, player, row, column) || checkColumns(board, player)) {
         console.log('user has won');
-        StartGameQuestions();
-
+        rl.close();
+        //break;
     }
     else if(checkTie(board)){
         console.log('it is a tie');
         StartGameQuestions();
     }
     else {
-        console.log('not a winner');
-        StartGameQuestions();
+        //StartGameQuestions();
+        recursiveAsyncReadLine();
 
     }
 }
@@ -375,23 +377,17 @@ function checkDiagonals(board, player, row, column){
     while (keepChecking){
         if(typeof board[++currentRow] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
 
         if(typeof board[currentRow][++currentColumn] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
-
         if (board[currentRow][currentColumn] == player) {
-            console.log('diagonal hit down right');
-            console.log('found hits:', ++hitCount);
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-            console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
@@ -443,7 +439,6 @@ function checkDiagonalsOpp(board, player, row, column){
 
         if(typeof board[currentRow][++currentColumn] === 'undefined') {
             keepChecking = false;
-         //   console.log('out of the range of the matrix');
             break;
         }
 
@@ -453,7 +448,6 @@ function checkDiagonalsOpp(board, player, row, column){
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-          //  console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
@@ -465,13 +459,11 @@ function checkDiagonalsOpp(board, player, row, column){
     while (keepChecking){
         if(typeof board[++currentRow] === 'undefined') {
             keepChecking = false;
-          //  console.log('out of the range of the matrix');
             break;
         }
 
         if(typeof board[currentRow][--currentColumn] === 'undefined') {
             keepChecking = false;
-            console.log('out of the range of the matrix');
             break;
         }
 
@@ -481,7 +473,6 @@ function checkDiagonalsOpp(board, player, row, column){
             if (hitCount >= settings.winSequence)
                 return true;
         } else {
-          //  console.log('stop checking no more matches');
             keepChecking = false;
         }
     }
